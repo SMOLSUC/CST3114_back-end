@@ -7,9 +7,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const uri = "mongodb+srv://watruspc:Admin56@cst3144.iifzjhf.mongodb.net/"; //mongodb+srv://watruspc:Admin56@cst3144.iifzjhf.mongodb.net/
+const uri = process.env.MONGO_URI; //mongodb+srv://watruspc:Admin56@cst3144.iifzjhf.mongodb.net/
 const client = new MongoClient(uri);
-const dbName = "cst3114";
+const dbName = process.env.DB_NAME;
 let lessonsCollection, ordersCollection;
 
 // Connect to MongoDB
