@@ -12,6 +12,12 @@ const client = new MongoClient(uri);
 const dbName = process.env.DB_NAME;
 let lessonsCollection, ordersCollection;
 
+//Middleware logger
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Connect to MongoDB
 async function connectDB() {
   try {
@@ -91,5 +97,5 @@ app.put("/api/lessons/:id/decrement", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+//const PORT = process.env.PORT || 3000;
 
