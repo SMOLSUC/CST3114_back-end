@@ -51,6 +51,54 @@ app.get("/api/lessons", async (req, res) => {
   }
 });
 
+// Add a new lesson
+app.post("/api/lessons", async (req, res) => {
+  try {
+    const {
+      topic,
+      price,
+      location,
+      space,
+      category,
+      level,
+      duration,
+      image,
+      preview,
+      subject,
+    } = req.body;
+
+    // Basic validation (optional but recommended)
+    if (!topic || !price || !location || !space || !category || !level || !duration || !image || !preview || !subject) {
+      return res.status(400).json({ message: "Missing required lesson fields" });
+    }
+
+    const newLesson = {
+      topic,
+      price,
+      location,
+      space,
+      category,
+      level,
+      duration,
+      image,
+      preview,
+      subject,
+    };
+
+    const result = await lessonsCollection.insertOne(newLesson);
+
+    res.status(201).json({
+      message: "Lesson added successfully",
+      lessonId: result.insertedId,
+    });
+
+  } catch (err) {
+    console.error("❌ Error adding lesson:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 // Add a new order
 app.post("/api/orders", async (req, res) => {
   try {
@@ -97,5 +145,4 @@ app.put("/api/lessons/:id/decrement", async (req, res) => {
   }
 });
 
-//const PORT = process.env.PORT || 3000;
 
