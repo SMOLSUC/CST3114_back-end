@@ -25,13 +25,13 @@ async function connectDB() {
     const db = client.db(dbName);
     lessonsCollection = db.collection("lessons");
     ordersCollection = db.collection("orders");
-    console.log(`✅ Connected to MongoDB database: ${dbName}`);
+    console.log(`Connected to MongoDB database: ${dbName}`);
 
     // Start server only when DB is ready
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   } catch (err) {
-    console.error("❌ Database connection error:", err);
+    console.error("Database connection error:", err);
   }
 }
 connectDB();
@@ -46,7 +46,7 @@ app.get("/api/lessons", async (req, res) => {
     const lessons = await lessonsCollection.find().toArray();
     res.json(lessons);
   } catch (err) {
-    console.error("❌ Error fetching lessons:", err);
+    console.error("Error fetching lessons:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -93,12 +93,12 @@ app.post("/api/lessons", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ Error adding lesson:", err);
+    console.error("Error adding lesson:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Update any attribute(s) of a lesson
+// Update any attribute of a lesson
 app.put("/api/lessons/:id", async (req, res) => {
   try {
     const lessonId = req.params.id;
@@ -121,7 +121,7 @@ app.put("/api/lessons/:id", async (req, res) => {
     res.json({ message: "Lesson updated successfully" });
 
   } catch (err) {
-    console.error("❌ Error updating lesson:", err);
+    console.error("Error updating lesson:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -135,12 +135,44 @@ app.post("/api/orders", async (req, res) => {
     await ordersCollection.insertOne(order);
     res.status(201).json({ message: "Order saved successfully" });
   } catch (err) {
-    console.error("❌ Error saving order:", err);
+    console.error("Error saving order:", err);
     res.status(400).json({ message: "Insert failed" });
   }
 });
 
 const { ObjectId } = require("mongodb");
+
+// Search lessons by letter or word
+app.get("/api/lessons/search", async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    if (!query) {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    // Build case-insensitive regex
+    const searchRegex = new RegExp(query, "i");
+
+    // Search multiple fields
+    const results = await lessonsCollection.find({
+      $or: [
+        { topic: { $regex: searchRegex } },
+        { category: { $regex: searchRegex } },
+        { subject: { $regex: searchRegex } },
+        { location: { $regex: searchRegex } },
+        { level: { $regex: searchRegex } }
+      ]
+    }).toArray();
+
+    res.json(results);
+
+  } catch (err) {
+    console.error("Error searching lessons:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 // Decrease lesson space by 1
 app.put("/api/lessons/:id/decrement", async (req, res) => {
