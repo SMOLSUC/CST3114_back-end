@@ -10,19 +10,7 @@ app.use(express.json());
 
 const publicAssetsPath = path.join(__dirname, 'public');
 
-// 1. Middleware to serve static files from the '/pictures' route
-// Requests to /pictures/leaf.png will look in the local 'public' folder.
-app.use("/pictures", express.static(publicAssetsPath));
-
-// 2. Custom middleware to handle 404 errors for images specifically.
-// This runs if express.static could not find the file requested under /pictures.
-app.use('/pictures', (req, res) => {
-    console.warn(`[404] Image not found: ${req.originalUrl}`);
-    res.status(404).json({ 
-        message: "Error: Lesson image not found on server.",
-        requestedPath: req.originalUrl 
-    });
-});
+app.use(express.static(publicAssetsPath));
 
 const uri = process.env.MONGO_URI; 
 const client = new MongoClient(uri);
@@ -157,7 +145,6 @@ app.post("/api/orders", async (req, res) => {
   }
 });
 
-//const { ObjectId } = require("mongodb");
 
 // Search lessons by letter or word
 app.get("/api/lessons/search", async (req, res) => {
